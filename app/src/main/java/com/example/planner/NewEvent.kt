@@ -5,5 +5,5 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun NewEvent() {
-    Text("Add Item")
+    Text("Add Event")
 }
