@@ -64,6 +64,12 @@ data class DailyEvent(
     val endMinute: Int
 )
 
+// DailyTo-Do data class
+data class ToDoItem(
+    val title: String,
+    val isCompleted: Boolean = false
+)
+
 @Composable
 fun HomeScreen() {
     val today = getFormattedDate()
@@ -113,7 +119,7 @@ fun HomeScreen() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(350.dp)
+                    .height(300.dp)
                     .background(
                         color = Color(0xFFF8F5F0),
                         shape = RoundedCornerShape(20.dp)
@@ -131,6 +137,36 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // To-Do list
+            Text(
+                text = "To-Do",
+                fontSize = 20.sp,
+                color = Color.Black,
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(350.dp)
+                    .background(
+                        color = Color(0xFFF8F5F0),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .padding(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    ToDoList(items = sampleToDo())
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
 
         }
     }
@@ -234,7 +270,7 @@ fun EventCard(event: DailyEvent) {
         }
     }
 }
-// Sample Events for Development Purposes
+// Sample Events for development purposes
 fun sampleEvents(): List<DailyEvent> {
     return listOf(
         DailyEvent("Doctor appointment", 7, 30, 8, 0),
@@ -242,6 +278,18 @@ fun sampleEvents(): List<DailyEvent> {
         DailyEvent("Gym", 18, 30, 19, 30)
     )
 }
+// Sample To-Do items for developmental purposes
+fun sampleToDo(): List<ToDoItem> {
+    return listOf(
+        ToDoItem("Water Plants"),
+        ToDoItem("Book Doctor's Appointment"),
+        ToDoItem("Change Bedding"),
+        ToDoItem("Pick up parcel"),
+        ToDoItem("Call Thomas"),
+        ToDoItem("Email Ben back")
+    )
+}
+
 
 fun formatEventTime(event: DailyEvent): String {
     fun toAmPm(hour: Int, minute: Int): String {
@@ -293,6 +341,50 @@ fun HourRow(hour: Int, events: List<DailyEvent>) {
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
+    }
+}
+
+@Composable
+fun ToDoList(items: List<ToDoItem>) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items.forEach { item ->
+            ToDoCard(item)
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+    }
+}
+
+@Composable
+fun ToDoCard(item: ToDoItem) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color(0xFFF6F1EA),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .padding(horizontal = 12.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(18.dp)
+                .clip(CircleShape)
+                .background(
+                    if (item.isCompleted) Color(0xFFACC2B6) else Color.White
+                )
+                .border(1.dp, Color(0xFFD8D2C8), CircleShape)
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Text(
+            text = item.title,
+            fontSize = 15.sp,
+            color = if (item.isCompleted) Color.Gray else Color.Black
+        )
     }
 }
 
