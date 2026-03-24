@@ -16,7 +16,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,12 +47,21 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
+// Weekday data class
 data class WeekDayItem(
     val date: LocalDate,
     val dayLabel: String,
     val dayNumber: Int,
     val isToday: Boolean
+)
+
+// DailyEvents data class
+data class DailyEvent(
+    val title: String,
+    val startHour: Int,
+    val startMinute: Int,
+    val endHour: Int,
+    val endMinute: Int
 )
 
 @Composable
@@ -61,15 +74,17 @@ fun HomeScreen() {
             .background(Color.White)
             .padding(24.dp)
     ) {
+        // Intro Welcome Message
         Column {
             Text(
-                text = "Welcome, Nina!",
+                text = "Welcome, Emily!",
                 fontSize = 28.sp,
                 color = Color.Black
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
+        // Daily Date Display
             Text(
                 text = today,
                 fontSize = 16.sp,
@@ -80,12 +95,49 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(20.dp))
 
+        // Weekly Calendar Strip
             WeeklyCalendarStrip()
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+        // Daily Schedule Display
+            Text(
+                text = "Daily Schedule",
+                fontSize = 20.sp,
+                color = Color.Black,
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(350.dp)
+                    .background(
+                        color = Color(0xFFF8F5F0),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .padding(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    DailyTimeline(events = sampleEvents())
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+
         }
     }
 }
 
 @Composable
+// Weekly Calendar Strip UI
 fun WeeklyCalendarStrip() {
     val weekDates = getCurrentWeekDates()
 
@@ -106,7 +158,7 @@ fun WeeklyCalendarStrip() {
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
-
+                // Todays date highlighted
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -135,6 +187,116 @@ fun WeeklyCalendarStrip() {
     }
 }
 
+@Composable
+// Daily Event UI
+fun DailyTimeline(events: List<DailyEvent>) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        for (hour in 0..23) {
+            HourRow(
+                hour = hour,
+                events = events.filter { event ->
+                    event.startHour == hour || (event.startHour < hour && event.endHour > hour)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+// Daily Schedule UI
+fun EventCard(event: DailyEvent) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color(0xFFF6F1EA),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .padding(12.dp)
+    ) {
+        Column {
+            Text(
+                text = event.title,
+                fontSize = 15.sp,
+                color = Color.Black,
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = formatEventTime(event),
+                fontSize = 13.sp,
+                color = Color.Gray
+            )
+        }
+    }
+}
+// Sample Events for Development Purposes
+fun sampleEvents(): List<DailyEvent> {
+    return listOf(
+        DailyEvent("Doctor appointment", 7, 30, 8, 0),
+        DailyEvent("Meeting", 13, 0, 15, 0),
+        DailyEvent("Gym", 18, 30, 19, 30)
+    )
+}
+
+fun formatEventTime(event: DailyEvent): String {
+    fun toAmPm(hour: Int, minute: Int): String {
+        val displayHour = when {
+            hour == 0 -> 12
+            hour > 12 -> hour - 12
+            else -> hour
+        }
+        val amPm = if (hour < 12) "am" else "pm"
+        return String.format("%d:%02d%s", displayHour, minute, amPm)
+    }
+
+    return "${toAmPm(event.startHour, event.startMinute)} - ${toAmPm(event.endHour, event.endMinute)}"
+}
+
+@Composable
+fun HourRow(hour: Int, events: List<DailyEvent>) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Text(
+            text = String.format("%02d:00", hour),
+            fontSize = 13.sp,
+            color = Color.Gray,
+            modifier = Modifier.width(56.dp)
+        )
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(Color(0xFFEAEAEA))
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            events.forEach { event ->
+                EventCard(event)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            if (events.isEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+        }
+    }
+}
+
+// Get Date, Format Date
 fun getFormattedDate(): String {
     val today = LocalDate.now()
 
@@ -153,6 +315,7 @@ fun getFormattedDate(): String {
     return "$dayName $day$suffix $month"
 }
 
+// Top day selector
 fun getCurrentWeekDates(): List<WeekDayItem> {
     val today = LocalDate.now()
     val startOfWeek = today.minusDays((today.dayOfWeek.value - DayOfWeek.MONDAY.value).toLong())
