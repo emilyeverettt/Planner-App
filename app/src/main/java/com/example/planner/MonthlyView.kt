@@ -1,12 +1,16 @@
 package com.example.planner
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
@@ -28,6 +32,11 @@ import java.time.YearMonth
 data class CalendarDay(
     val dayNumber: Int,
     val isCurrentMonth: Boolean
+)
+// Placeholder data class for upcoming events
+data class UpcomingPlacementItem(
+    val title: String,
+    val isCompleted: Boolean = false
 )
 
 @Composable
@@ -130,12 +139,21 @@ fun MonthlyView() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(350.dp)
                 .background(
                     color = Color(0xFFF8F5F0),
                     shape = RoundedCornerShape(20.dp)
                 )
-        )
+                .padding(12.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                UpcomingPlacementList(items = sampleUpcomingPlacement())
+            }
+        }
     }
 }
 
@@ -256,4 +274,56 @@ fun getCalendarDays(year: Int, month: Int): List<CalendarDay> {
     }
 
     return result
+}
+// Sample upcoming placement items for development purposes
+fun sampleUpcomingPlacement(): List<UpcomingPlacementItem> {
+    return listOf(
+        UpcomingPlacementItem("Father's Day (UK) - In 17 days"),
+        UpcomingPlacementItem("Thomas Birthday - In 23 days"),
+        UpcomingPlacementItem("Dad's Birthday - In 34 days"),
+        UpcomingPlacementItem("Arlo Christening - In 40 days"),
+        UpcomingPlacementItem("Graduation Ceremony - In 48 days")
+    )
+}
+@Composable
+fun UpcomingPlacementList(items: List<UpcomingPlacementItem>) {
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items.forEach { item ->
+            UpcomingPlacementCard(item)
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+    }
+}
+@Composable
+fun UpcomingPlacementCard(item: UpcomingPlacementItem) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color(0xFFF6F1EA),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .padding(horizontal = 12.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(18.dp)
+                .clip(CircleShape)
+                .background(
+                    if (item.isCompleted) Color(0xFFACC2B6) else Color.White
+                )
+                .border(1.dp, Color(0xFFD8D2C8), CircleShape)
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Text(
+            text = item.title,
+            fontSize = 15.sp,
+            color = if (item.isCompleted) Color.Gray else Color.Black
+        )
+    }
 }
