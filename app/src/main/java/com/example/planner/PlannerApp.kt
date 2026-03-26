@@ -88,7 +88,7 @@ fun PlannerApp() {
         ) {
             composable("home") { HomeScreen() }
             composable("calendar") { MonthlyView() }
-            composable("profile") { SettingsView() }
+            composable("profile") { SettingsView(navController) }
             composable("add") { NewEvent() }
         }
     }
