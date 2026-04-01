@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -93,12 +94,25 @@ fun HomeScreen() {
             Spacer(modifier = Modifier.height(15.dp))
 
             // Daily Schedule Display
-            Text(
-                text = "Daily Schedule",
-                fontSize = 20.sp,
-                color = Color.Black,
-                fontWeight = FontWeight.Medium
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Daily Schedule",
+                    fontSize = 20.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Text(
+                    text = "April Fools Day UK",
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    fontStyle = FontStyle.Italic
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -175,12 +189,12 @@ fun WeeklyCalendarStrip() {
             ) {
                 Text(
                     text = item.dayLabel,
-                    color = Color.Gray,
+                    color = Color.DarkGray,
                     fontSize = 12.sp
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
-                // Todays date highlighted
+                // Today's date highlighted
                 Box(
                     modifier = Modifier
                         .size(36.dp)

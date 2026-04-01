@@ -31,6 +31,29 @@ fun NewEvent() {
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Task / Event",
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Description",
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Date",
+                fontSize = 20.sp,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Time (Optional)",
+                fontSize = 20.sp,
+                color = Color.Black
+            )
         }
     }
 }
