@@ -36,6 +36,9 @@ fun NewEvent() {
     val hours = (0..23).map { it.toString().padStart(2, '0') }
     val minutes = (0..59).map { it.toString().padStart(2, '0') }
 
+    var description by remember { mutableStateOf("") }
+    var showDescription by remember { mutableStateOf(false) }
+
     val calendarDays = remember {
         getCalendarDays(2026, 3)
     }
@@ -48,7 +51,7 @@ fun NewEvent() {
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("New Event", fontSize = 28.sp, color = Color.Black)
+        Text("Add New", fontSize = 28.sp, color = Color.Black)
 
         OutlinedTextField(
             value = title,
@@ -59,7 +62,38 @@ fun NewEvent() {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Text("Date", fontSize = 18.sp, color = Color.Black)
+        if (showDescription) {
+            OutlinedTextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text("Description") },
+                placeholder = { Text("Enter description") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3
+            )
+
+            TextButton(
+                onClick = {
+                    showDescription = false
+                    description = ""
+                },
+                modifier = Modifier.offset(y = (-26).dp)
+            ) {
+                Text("- Remove", color = Color.Red)
+            }
+        } else {
+            Button(
+                onClick = { showDescription = true },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFACC2B6)
+                )
+            ) {
+                Text("+ Add Description")
+            }
+        }
+
+        Text("Date", fontSize = 20.sp, color = Color.Black)
 
         Box(
             modifier = Modifier
@@ -74,7 +108,9 @@ fun NewEvent() {
             CalendarContent(calendarDays = calendarDays)
         }
 
-        Text("Repeat", fontSize = 16.sp, color = Color.Black)
+        Text("Repeat:", fontSize = 18.sp, color = Color.Black)
+        RepeatDropdownRow()
+
 
         if (showStartTime) {
             Text("Start Time", fontSize = 18.sp, color = Color.Black)
@@ -98,7 +134,7 @@ fun NewEvent() {
                     showFinishTime = false
                 }
             ) {
-                Text("- Remove Time")
+                Text("- Remove Time", color = Color.Red)
             }
 
             if (showFinishTime) {
@@ -120,12 +156,16 @@ fun NewEvent() {
                 TextButton(
                     onClick = { showFinishTime = false }
                 ) {
-                    Text("- Remove Finish Time")
+                    Text("- Remove Finish Time", color = Color.Red)
                 }
+
             } else {
                 Button(
                     onClick = { showFinishTime = true },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFACC2B6)
+                    )
                 ) {
                     Text("+ Add Finish Time")
                 }
@@ -133,17 +173,27 @@ fun NewEvent() {
         } else {
             Button(
                 onClick = { showStartTime = true },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFACC2B6)
+                )
             ) {
                 Text("+ Add Time")
             }
         }
 
+        Text("Organise:", fontSize = 18.sp, color = Color.Black)
+        OrganiseDropdownRow()
+
+
         Text("Preview:", fontSize = 18.sp, color = Color.Black)
 
         Button(
             onClick = { },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFACC2B6)
+            )
         ) {
             Text("Save")
         }
@@ -233,6 +283,102 @@ fun TimeDropdownRow(
                         }
                     )
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RepeatDropdownRow() {
+
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("Never") }
+
+    val options = listOf(
+        "Never",
+        "Daily",
+        "Weekly",
+        "Monthly",
+        "Custom"
+    )
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = selectedOption,
+            onValueChange = {},
+            readOnly = true,
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            }
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        selectedOption = option
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun OrganiseDropdownRow() {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("Select Category") }
+
+    val options = listOf(
+        "Select Category",
+        "Chores",
+        "Medications",
+        "Houseplants"
+    )
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = selectedOption,
+            onValueChange = {},
+            readOnly = true,
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            }
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        selectedOption = option
+                        expanded = false
+                    }
+                )
             }
         }
     }
