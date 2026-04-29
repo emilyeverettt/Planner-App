@@ -188,6 +188,16 @@ fun NewEvent() {
 
         Text("Preview:", fontSize = 18.sp, color = Color.Black)
 
+        PreviewBox(
+            title = title,
+            description = description,
+            showDescription = showDescription,
+            showStartTime = showStartTime,
+            showFinishTime = showFinishTime,
+            startTime = "$selectedStartHour:$selectedStartMinute",
+            finishTime = "$selectedFinishHour:$selectedFinishMinute"
+        )
+
         Button(
             onClick = { },
             modifier = Modifier.fillMaxWidth(),
@@ -378,6 +388,69 @@ fun OrganiseDropdownRow() {
                         selectedOption = option
                         expanded = false
                     }
+                )
+            }
+        }
+    }
+}
+@Composable
+fun PreviewBox(
+    title: String,
+    description: String,
+    showDescription: Boolean,
+    showStartTime: Boolean,
+    showFinishTime: Boolean,
+    startTime: String,
+    finishTime: String
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color(0xFFF8F5F0),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(16.dp)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            Text(
+                text = if (title.isBlank()) "Untitled Event" else title,
+                fontSize = 18.sp,
+                color = Color.Black
+            )
+
+            if (showDescription && description.isNotBlank()) {
+                Text(
+                    text = description,
+                    fontSize = 14.sp,
+                    color = Color.DarkGray
+                )
+            }
+
+            Text(
+                text = "Date: March 2026",
+                fontSize = 14.sp,
+                color = Color.DarkGray
+            )
+
+            if (showStartTime) {
+                Text(
+                    text = if (showFinishTime) {
+                        "Time: $startTime - $finishTime"
+                    } else {
+                        "Time: $startTime"
+                    },
+                    fontSize = 14.sp,
+                    color = Color.DarkGray
+                )
+            } else {
+                Text(
+                    text = "Time: N/A",
+                    fontSize = 14.sp,
+                    color = Color.DarkGray
                 )
             }
         }
