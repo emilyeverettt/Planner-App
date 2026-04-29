@@ -128,7 +128,7 @@ fun MonthlyView() {
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
-            text = "Upcoming",
+            text = "Deadlines and Upcoming",
             fontSize = 22.sp,
             color = Color.Black,
             fontWeight = FontWeight.Medium
