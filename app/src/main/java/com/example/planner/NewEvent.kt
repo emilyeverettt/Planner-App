@@ -2,12 +2,15 @@ package com.example.planner
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.verticalScroll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,10 +36,15 @@ fun NewEvent() {
     val hours = (0..23).map { it.toString().padStart(2, '0') }
     val minutes = (0..59).map { it.toString().padStart(2, '0') }
 
+    val calendarDays = remember {
+        getCalendarDays(2026, 3)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .verticalScroll(rememberScrollState())
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -51,7 +59,22 @@ fun NewEvent() {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Text("Date", fontSize = 28.sp, color = Color.Black)
+        Text("Date", fontSize = 18.sp, color = Color.Black)
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(380.dp)
+                .background(
+                    color = Color(0xFFF8F5F0),
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .padding(16.dp)
+        ) {
+            CalendarContent(calendarDays = calendarDays)
+        }
+
+        Text("Repeat", fontSize = 16.sp, color = Color.Black)
 
         if (showStartTime) {
             Text("Start Time", fontSize = 18.sp, color = Color.Black)
@@ -116,7 +139,7 @@ fun NewEvent() {
             }
         }
 
-        Text("Preview", fontSize = 18.sp, color = Color.Black)
+        Text("Preview:", fontSize = 18.sp, color = Color.Black)
 
         Button(
             onClick = { },
