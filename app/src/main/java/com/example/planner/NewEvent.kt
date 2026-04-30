@@ -4,19 +4,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.verticalScroll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewEvent() {
 
     var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var showDescription by remember { mutableStateOf(false) }
+
+    var repeatOption by remember { mutableStateOf("Never") }
+    var organiseOption by remember { mutableStateOf("None") }
 
     var showStartTime by remember { mutableStateOf(false) }
     var showFinishTime by remember { mutableStateOf(false) }
@@ -35,9 +40,6 @@ fun NewEvent() {
 
     val hours = (0..23).map { it.toString().padStart(2, '0') }
     val minutes = (0..59).map { it.toString().padStart(2, '0') }
-
-    var description by remember { mutableStateOf("") }
-    var showDescription by remember { mutableStateOf(false) }
 
     val calendarDays = remember {
         getCalendarDays(2026, 3)
@@ -63,23 +65,27 @@ fun NewEvent() {
         )
 
         if (showDescription) {
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("Description") },
-                placeholder = { Text("Enter description") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3
-            )
-
-            TextButton(
-                onClick = {
-                    showDescription = false
-                    description = ""
-                },
-                modifier = Modifier.offset(y = (-26).dp)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Text("- Remove", color = Color.Red)
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description") },
+                    placeholder = { Text("Enter description") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3
+                )
+
+                TextButton(
+                    onClick = {
+                        showDescription = false
+                        description = ""
+                    },
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text("- Remove", color = Color.Red)
+                }
             }
         } else {
             Button(
@@ -93,7 +99,7 @@ fun NewEvent() {
             }
         }
 
-        Text("Date", fontSize = 20.sp, color = Color.Black)
+        Text("Date:", fontSize = 20.sp, color = Color.Black)
 
         Box(
             modifier = Modifier
@@ -109,11 +115,14 @@ fun NewEvent() {
         }
 
         Text("Repeat:", fontSize = 18.sp, color = Color.Black)
-        RepeatDropdownRow()
 
+        RepeatDropdownRow(
+            selectedOption = repeatOption,
+            onOptionSelected = { repeatOption = it }
+        )
 
         if (showStartTime) {
-            Text("Start Time", fontSize = 18.sp, color = Color.Black)
+            Text("Start Time:", fontSize = 18.sp, color = Color.Black)
 
             TimeDropdownRow(
                 selectedHour = selectedStartHour,
@@ -132,13 +141,14 @@ fun NewEvent() {
                 onClick = {
                     showStartTime = false
                     showFinishTime = false
-                }
+                },
+                contentPadding = PaddingValues(0.dp)
             ) {
                 Text("- Remove Time", color = Color.Red)
             }
 
             if (showFinishTime) {
-                Text("Finish Time", fontSize = 18.sp, color = Color.Black)
+                Text("Finish Time:", fontSize = 18.sp, color = Color.Black)
 
                 TimeDropdownRow(
                     selectedHour = selectedFinishHour,
@@ -154,11 +164,11 @@ fun NewEvent() {
                 )
 
                 TextButton(
-                    onClick = { showFinishTime = false }
+                    onClick = { showFinishTime = false },
+                    contentPadding = PaddingValues(0.dp)
                 ) {
                     Text("- Remove Finish Time", color = Color.Red)
                 }
-
             } else {
                 Button(
                     onClick = { showFinishTime = true },
@@ -183,8 +193,11 @@ fun NewEvent() {
         }
 
         Text("Organise:", fontSize = 18.sp, color = Color.Black)
-        OrganiseDropdownRow()
 
+        OrganiseDropdownRow(
+            selectedOption = organiseOption,
+            onOptionSelected = { organiseOption = it }
+        )
 
         Text("Preview:", fontSize = 18.sp, color = Color.Black)
 
@@ -195,7 +208,9 @@ fun NewEvent() {
             showStartTime = showStartTime,
             showFinishTime = showFinishTime,
             startTime = "$selectedStartHour:$selectedStartMinute",
-            finishTime = "$selectedFinishHour:$selectedFinishMinute"
+            finishTime = "$selectedFinishHour:$selectedFinishMinute",
+            repeat = repeatOption,
+            organise = organiseOption
         )
 
         Button(
@@ -206,6 +221,60 @@ fun NewEvent() {
             )
         ) {
             Text("Save")
+        }
+    }
+}
+
+@Composable
+fun PreviewBox(
+    title: String,
+    description: String,
+    showDescription: Boolean,
+    showStartTime: Boolean,
+    showFinishTime: Boolean,
+    startTime: String,
+    finishTime: String,
+    repeat: String,
+    organise: String
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Color(0xFFF8F5F0),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(16.dp)
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+            Text(
+                text = if (title.isBlank()) "Untitled Event" else title,
+                fontSize = 18.sp,
+                color = Color.Black
+            )
+
+            if (showDescription && description.isNotBlank()) {
+                Text(description, fontSize = 14.sp, color = Color.DarkGray)
+            }
+
+            Text("Date: March 2026", fontSize = 14.sp, color = Color.DarkGray)
+            Text("Repeat: $repeat", fontSize = 14.sp, color = Color.DarkGray)
+            Text("Organise: $organise", fontSize = 14.sp, color = Color.DarkGray)
+
+            if (showStartTime) {
+                Text(
+                    text = if (showFinishTime) {
+                        "Time: $startTime - $finishTime"
+                    } else {
+                        "Time: $startTime"
+                    },
+                    fontSize = 14.sp,
+                    color = Color.DarkGray
+                )
+            } else {
+                Text("Time: No time set", fontSize = 14.sp, color = Color.DarkGray)
+            }
         }
     }
 }
@@ -300,10 +369,11 @@ fun TimeDropdownRow(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RepeatDropdownRow() {
-
+fun RepeatDropdownRow(
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("Never") }
 
     val options = listOf(
         "Never",
@@ -338,7 +408,7 @@ fun RepeatDropdownRow() {
                 DropdownMenuItem(
                     text = { Text(option) },
                     onClick = {
-                        selectedOption = option
+                        onOptionSelected(option)
                         expanded = false
                     }
                 )
@@ -349,12 +419,14 @@ fun RepeatDropdownRow() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrganiseDropdownRow() {
+fun OrganiseDropdownRow(
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("Select Category") }
 
     val options = listOf(
-        "Select Category",
+        "None",
         "Chores",
         "Medications",
         "Houseplants"
@@ -385,72 +457,9 @@ fun OrganiseDropdownRow() {
                 DropdownMenuItem(
                     text = { Text(option) },
                     onClick = {
-                        selectedOption = option
+                        onOptionSelected(option)
                         expanded = false
                     }
-                )
-            }
-        }
-    }
-}
-@Composable
-fun PreviewBox(
-    title: String,
-    description: String,
-    showDescription: Boolean,
-    showStartTime: Boolean,
-    showFinishTime: Boolean,
-    startTime: String,
-    finishTime: String
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = Color(0xFFF8F5F0),
-                shape = RoundedCornerShape(20.dp)
-            )
-            .padding(16.dp)
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-
-            Text(
-                text = if (title.isBlank()) "Untitled Event" else title,
-                fontSize = 18.sp,
-                color = Color.Black
-            )
-
-            if (showDescription && description.isNotBlank()) {
-                Text(
-                    text = description,
-                    fontSize = 14.sp,
-                    color = Color.DarkGray
-                )
-            }
-
-            Text(
-                text = "Date: March 2026",
-                fontSize = 14.sp,
-                color = Color.DarkGray
-            )
-
-            if (showStartTime) {
-                Text(
-                    text = if (showFinishTime) {
-                        "Time: $startTime - $finishTime"
-                    } else {
-                        "Time: $startTime"
-                    },
-                    fontSize = 14.sp,
-                    color = Color.DarkGray
-                )
-            } else {
-                Text(
-                    text = "Time: N/A",
-                    fontSize = 14.sp,
-                    color = Color.DarkGray
                 )
             }
         }
