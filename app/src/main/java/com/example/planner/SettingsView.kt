@@ -2,6 +2,7 @@ package com.example.planner
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,10 +30,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun SettingsView(navController: NavController) {
+
+    var showClearDialog by remember { mutableStateOf(false) }
+
 Column(
     modifier = Modifier
         .background(Color.White)
@@ -89,6 +98,43 @@ Column(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         )
+
+        ClearDataButton(
+            title = "Clear Local Data",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            onClick = { showClearDialog = true }
+        )
+
+        if (showClearDialog) {
+            AlertDialog(
+                onDismissRequest = { showClearDialog = false },
+                title = {
+                    Text("Clear local data?")
+                },
+                text = {
+                    Text("Are you sure? This will wipe all local data, including events, reminders, and saved settings.")
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showClearDialog = false
+                            // TODO: call ViewModel clear local data function here
+                        }
+                    ) {
+                        Text("Yes, clear data", color = Color.Red)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showClearDialog = false }
+                    ) {
+                        Text("No")
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -127,6 +173,38 @@ fun SettingsButton(title: String, modifier: Modifier = Modifier) {
             contentDescription = "Settings",
             modifier = Modifier
                 .size(30.dp)
+        )
+
+        Spacer(modifier = Modifier.size(15.dp))
+
+        Text(
+            text = title,
+            color = Color.DarkGray,
+            fontSize = 25.sp
+        )
+
+    }
+    Spacer(modifier = Modifier.size(15.dp))
+}
+
+
+@Composable
+fun ClearDataButton(
+    title: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .background(Color(0xFFF2F2F2), shape = RoundedCornerShape(12.dp))
+            .padding(16.dp)
+            .clickable { onClick() }
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.delete),
+            contentDescription = "Clear Data",
+            modifier = Modifier.size(30.dp)
         )
 
         Spacer(modifier = Modifier.size(15.dp))
