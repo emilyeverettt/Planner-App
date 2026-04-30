@@ -13,9 +13,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.DayOfWeek
+import java.time.Month
 import java.time.YearMonth
 
 // Monthly Calendar data class
@@ -43,11 +47,16 @@ data class UpcomingPlacementItem(
 fun MonthlyView() {
     var expanded by remember { mutableStateOf(false) }
     var selectedYear by remember { mutableIntStateOf(2026) }
+    var selectedMonth by remember { mutableIntStateOf(3) }
 
-    val selectedMonth = 3 // March
-    val calendarDays = remember(selectedYear) {
+    val calendarDays = remember(selectedYear, selectedMonth) {
         getCalendarDays(selectedYear, selectedMonth)
     }
+
+    val monthName = Month.of(selectedMonth)
+        .name
+        .lowercase()
+        .replaceFirstChar { it.uppercase() }
 
     Column(
         modifier = Modifier
@@ -55,11 +64,51 @@ fun MonthlyView() {
             .background(Color.White)
             .padding(20.dp)
     ) {
-        Text(
-            text = "March",
-            fontSize = 28.sp,
-            color = Color.Black
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(
+                onClick = {
+                    if (selectedMonth == 1) {
+                        selectedMonth = 12
+                        selectedYear--
+                    } else {
+                        selectedMonth--
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowLeft,
+                    contentDescription = "Previous month",
+                    tint = Color.Black
+                )
+            }
+
+            Text(
+                text = monthName,
+                fontSize = 28.sp,
+                color = Color.Black
+            )
+
+            IconButton(
+                onClick = {
+                    if (selectedMonth == 12) {
+                        selectedMonth = 1
+                        selectedYear++
+                    } else {
+                        selectedMonth++
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowRight,
+                    contentDescription = "Next month",
+                    tint = Color.Black
+                )
+            }
+        }
 
         Box(
             modifier = Modifier
@@ -263,7 +312,7 @@ fun getCalendarDays(year: Int, month: Int): List<CalendarDay> {
 
     // Calendar format: fill remaining cells with next month days
     var nextMonthDay = 1
-    while (result.size < 35) {
+    while (result.size < 42) {
         result.add(
             CalendarDay(
                 dayNumber = nextMonthDay,
